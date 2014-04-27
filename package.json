@@ -1,0 +1,11 @@
+{
+  "name": "gh-resolve",
+  "version": "0.0.1",
+  "dependencies": {
+    "semver": "^2.2.1",
+    "request": "^2.34.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.18.2"
+  }
+}
