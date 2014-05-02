@@ -36,6 +36,7 @@ function resolve(repo, user, token, fn){
     get(url, function(err, res, prev){
       if (err) return fn(err);
       var ref = satisfy(res, version);
+      if (ref) ref.name = ref.ref;
       if (ref) return fn(null, ref);
       if (prev) return next(prev);
       fn();
