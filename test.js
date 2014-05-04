@@ -8,7 +8,7 @@ describe('resolve()', function(){
   it('should resolve a semver version to gh ref', function(done){
     resolve('component/component@0.19.6', user, tok, function(err, ref){
       if (err) return done(err);
-      assert('refs/tags/0.19.6' == ref.name);
+      assert('0.19.6' == ref.name);
       assert('refs/tags/0.19.6' == ref.ref);
       assert('https://api.github.com/repos/component/component/git/tags/6d6501d002aef91f1261f6ec98c6ed32046fe46a' == ref.object.url);
       assert('https://api.github.com/repos/component/component/git/refs/tags/0.19.6' == ref.url);
@@ -21,8 +21,8 @@ describe('resolve()', function(){
   it('should resolve a branch to gh ref', function(done){
     resolve('component/component@master', user, tok, function(err, ref){
       if (err) return done(err);
+      assert('master' == ref.name);
       assert('refs/heads/master' == ref.ref);
-      assert('refs/heads/master' == ref.name);
       assert('https://api.github.com/repos/component/component/git/refs/heads/master' == ref.url);
       done();
     });

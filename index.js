@@ -36,7 +36,7 @@ function resolve(repo, user, token, fn){
     get(url, function(err, res, prev){
       if (err) return fn(err);
       var ref = satisfy(res, version);
-      if (ref) ref.name = ref.ref;
+      if (ref) ref.name = name(ref);
       if (ref) return fn(null, ref);
       if (prev) return next(prev);
       fn();
@@ -136,4 +136,24 @@ function error(res){
   var err = new Error(res.body.message || 'Unknown gh error');
   err.res = res;
   return err;
+}
+
+/**
+ * Name the given `ref`.
+ * 
+ * @param {Object} ref
+ * @return {String}
+ * @api public
+ */
+
+function name(ref){
+  var types = ['refs/heads', 'refs/tags'];
+
+  for (var i = 0; i < types.length; ++i) {
+    if (0 == ref.ref.indexOf(types[i])) {
+      return ref.ref.slice(types[i].length + 1);
+    }
+  }
+
+  return '';
 }
