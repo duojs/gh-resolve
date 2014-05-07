@@ -27,4 +27,14 @@ describe('resolve()', function(){
       done();
     });
   })
+
+  it('should resolve branches with `/` in them', function(done){
+    resolve('segmentio/analytics.js-integrations@cleanup/structure', user, tok, function(err, ref){
+      if (err) return done(err);
+      assert('cleanup/structure' == ref.name);
+      assert('refs/heads/cleanup/structure', ref.ref);
+      assert('https://api.github.com/repos/segmentio/analytics.js-integrations/git/refs/heads/cleanup/structure' == ref.url);
+      done();
+    })
+  })
 });

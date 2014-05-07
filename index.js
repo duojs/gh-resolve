@@ -89,8 +89,8 @@ function parse(link){
 
 function satisfy(refs, version){
   for (var i = 0; i < refs.length; ++i) {
-    var name = refs[i].ref.split('/').pop();
-    if (equal(name, version)) return refs[i];
+    var n = name(refs[i]);
+    if (n && equal(n, version)) return refs[i];
   }
 };
 
