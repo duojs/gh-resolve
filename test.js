@@ -18,6 +18,14 @@ describe('resolve()', function(){
     });
   });
 
+  it('should sort properly', function(done){
+    resolve('component/component@0.19.x', user, tok, function(err, ref){
+      if (err) return done(err);
+      assert('0.19.9' == ref.name);
+      done();
+    });
+  });
+
   it('should resolve a branch to gh ref', function(done){
     resolve('component/component@master', user, tok, function(err, ref){
       if (err) return done(err);

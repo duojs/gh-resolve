@@ -3,7 +3,8 @@
  * Module dependencies.
  */
 
-var satisfies = require('semver').satisfies;
+var semver = require('semver');
+var satisfies = semver.satisfies;
 var request = require('request');
 
 /**
@@ -88,6 +89,8 @@ function parse(link){
  */
 
 function satisfy(refs, version){
+  refs = refs.reverse();
+  
   for (var i = 0; i < refs.length; ++i) {
     var n = name(refs[i]);
     if (n && equal(n, version)) return refs[i];
