@@ -1,6 +1,6 @@
 {
   "name": "gh-resolve",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "dependencies": {
     "semver": "^2.2.1",
     "request": "^2.34.0"
