@@ -1,7 +1,7 @@
 
 var resolve = require('./');
 var assert = require('assert');
-var user = process.env.GITHUB_USER;
+var user = process.env.GITHUB_USERNAME;
 var tok = process.env.GITHUB_PASSWORD;
 
 describe('resolve()', function(){
@@ -44,5 +44,13 @@ describe('resolve()', function(){
       assert('https://api.github.com/repos/segmentio/analytics.js-integrations/git/refs/heads/cleanup/structure' == ref.url);
       done();
     })
+  })
+
+  it('should default to the latest tag when the ref is `*`', function(done){
+    resolve('yields/k@*', user, tok, function(err, ref){
+      if (err) return done(err);
+      assert(/[\d.]{3}/.test(ref.name));
+      done();
+    });
   })
 });
