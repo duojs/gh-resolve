@@ -27,6 +27,7 @@ function resolve(repo, user, token, fn){
   var parts = repo.split('@');
   var repo = parts.shift();
   var version = parts.shift() || '*';
+  var refs = [];
 
   var headers = {
     'User-Agent': 'gh-resolve',
@@ -36,10 +37,11 @@ function resolve(repo, user, token, fn){
   function next(url){
     get(url, function(err, res, prev){
       if (err) return fn(err);
-      var ref = satisfy(res, version);
+      refs = refs.concat(res);
+      if (prev) return next(prev);
+      var ref = satisfy(refs, version);
       if (ref) ref.name = name(ref);
       if (ref) return fn(null, ref);
-      if (prev) return next(prev);
       fn();
     });
   }
@@ -57,7 +59,7 @@ function resolve(repo, user, token, fn){
     });
   }
 
-  next('https://api.github.com/repos/' + repo + '/git/refs?per_page=100&last')
+  next('https://api.github.com/repos/' + repo + '/git/refs?per_page=100&first')
 }
 
 /**
@@ -89,8 +91,8 @@ function parse(link){
  */
 
 function satisfy(refs, version){
-  refs = refs.reverse();
-  
+  refs = normalize(refs.reverse());
+
   for (var i = 0; i < refs.length; ++i) {
     var n = name(refs[i]);
     if (n && equal(n, version)) return refs[i];
@@ -159,4 +161,21 @@ function name(ref){
   }
 
   return '';
+}
+
+/**
+ * Sort and clean the given `refs`
+ * 
+ * @param {Array} refs
+ * @return {Array}
+ * @api private
+ */
+
+function normalize(refs){
+  return refs.filter(valid);
+
+  function valid(ref){
+    return 0 == ref.ref.indexOf('refs/tags')
+      || 0 == ref.ref.indexOf('refs/heads');
+  }
 }

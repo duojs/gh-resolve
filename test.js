@@ -47,7 +47,7 @@ describe('resolve()', function(){
   })
 
   it('should default to the latest tag when the ref is `*`', function(done){
-    resolve('yields/k@*', user, tok, function(err, ref){
+    resolve('segmentio/analytics.js@*', user, tok, function(err, ref){
       if (err) return done(err);
       assert(/[\d.]{3}/.test(ref.name));
       done();
