@@ -1,4 +1,9 @@
 
+0.1.5 / 2014-06-01 
+==================
+
+ * request: lower amount of requests needed by guessing if the user needs a tag or a branch
+
 0.1.4 / 2014-05-29 
 ==================
 
