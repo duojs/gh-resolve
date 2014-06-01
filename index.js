@@ -59,7 +59,18 @@ function resolve(repo, user, token, fn){
     });
   }
 
-  next('https://api.github.com/repos/' + repo + '/git/refs?per_page=100&first')
+  function url(repo){
+    return 'https://api.github.com/repos/' + repo;
+  }
+
+  // valid semver, only get the tags.
+  if (semver.validRange(version)) {
+    next(url(repo) + '/git/refs/tags?per_page=100&first');
+    return;
+  }
+
+  // invalid get the heads.
+  next(url(repo) + '/git/refs/heads?per_page=100&first');
 }
 
 /**
