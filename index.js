@@ -3,6 +3,7 @@
  * Module dependencies.
  */
 
+var spawn = require('child_process').spawn;
 var semver = require('semver');
 var satisfies = semver.satisfies;
 var request = require('request');
@@ -14,82 +15,62 @@ var request = require('request');
 module.exports = resolve;
 
 /**
- * Resolve `repo@version` with `user`, `token` and `fn(err, res)`.
+ * Resolve `repo@version` with `fn(err, tag)`.
  * 
  * @param {String} repo
- * @param {String} user
- * @param {String} token
  * @param {Function} fn
  * @api public
  */
 
-function resolve(repo, user, token, fn){
+function resolve(repo, fn){
   var parts = repo.split('@');
-  var repo = parts.shift();
-  var version = parts.shift() || '*';
-  var refs = [];
+  var name = parts.shift();
+  var version = parts.shift();
+  var url = 'https://github.com/' + name;
+  var proc = spawn('git', ['ls-remote', '--tags', '--heads', url]);
+  var stdout = '';
+  var stderr = '';
 
-  var headers = {
-    'User-Agent': 'gh-resolve',
-    Authorization: basic(user, token)
-  };
+  proc.stdout.on('data', function(c){ stdout += c; });
+  proc.stderr.on('data', function(c){ stderr += c; });
+  proc.on('error', fn);
 
-  function next(url){
-    get(url, function(err, res, prev){
-      if (err) return fn(err);
-      refs = refs.concat(res);
-      if (prev) return next(prev);
-      var ref = satisfy(refs, version);
-      if (ref) ref.name = name(ref);
-      if (ref) return fn(null, ref);
-      fn();
-    });
-  }
-
-  function get(url, fn){
-    request({
-      url: url,
-      json: true,
-      headers: headers,
-    }, function(err, res, body){
-      if (err) return fn(err);
-      var s = res.statusCode / 100 | 0;
-      if (4 <= s) return fn(error(res));
-      fn(null, body, parse(res.headers.link));
-    });
-  }
-
-  function url(repo){
-    return 'https://api.github.com/repos/' + repo;
-  }
-
-  // valid semver, only get the tags.
-  if (semver.validRange(version)) {
-    next(url(repo) + '/git/refs/tags?per_page=100&first');
-    return;
-  }
-
-  // invalid get the heads.
-  next(url(repo) + '/git/refs/heads?per_page=100&first');
+  proc.on('close', function(code){
+    if (code || stderr) return fn(new Error(stderr || 'cannot resolve "' + repo + '"'));
+    var refs = parse(stdout, name);
+    fn(null, satisfy(refs, version));
+  });
 }
 
 /**
- * Parse the previous `link`.
+ * Parse all gh refs.
  * 
- * @param {String} link
- * @return {String}
+ * @param {String} stdout
+ * @param {String} repo
+ * @return {Array}
  * @api private
  */
 
-function parse(link){
-  return (link || '')
-    .split(',')
-    .reduce(function(_, link){
-      var parts = link.split(';');
-      var rel = parts[1];
-      if (!~rel.indexOf('last')) return;
-      return parts[0].trim().slice(1, -1);
-    });
+function parse(stdout, repo){
+  return stdout
+    .split(/[\r\n]/g)
+    .map(function(line){
+      var parts = line.trim().split(/[\t ]+/);
+      return {
+        ref: parts[1],
+        object: { sha: parts[0] }
+      };
+    })
+    .filter(function(ref){
+      if (!ref.ref) return;
+      ref.name = ref.ref.replace(/^refs\/(heads|tags)\//, '');
+      var type = ref.object.type = /^refs\/tags/.test(ref.ref) ? 'tag' : 'commit';
+      var baseUrl = 'https://api.github.com/repos/' + repo + '/git';
+      ref.object.url = baseUrl + '/' + type + 's/' + ref.object.sha;
+      ref.url = baseUrl + '/' + ref.ref;
+      return !/\^{}$/.test(ref.name);
+    })
+    .reverse();
 }
 
 /**
@@ -102,11 +83,8 @@ function parse(link){
  */
 
 function satisfy(refs, version){
-  refs = normalize(refs.reverse());
-
-  for (var i = 0; i < refs.length; ++i) {
-    var n = name(refs[i]);
-    if (n && equal(n, version)) return refs[i];
+  for (var i = 0, ref; ref = refs[i++];) {
+    if (equal(ref.name, version)) return ref;
   }
 };
 
@@ -152,41 +130,4 @@ function error(res){
   var err = new Error(res.body.message || 'Unknown gh error');
   err.res = res;
   return err;
-}
-
-/**
- * Name the given `ref`.
- * 
- * @param {Object} ref
- * @return {String}
- * @api public
- */
-
-function name(ref){
-  var types = ['refs/heads', 'refs/tags'];
-
-  for (var i = 0; i < types.length; ++i) {
-    if (0 == ref.ref.indexOf(types[i])) {
-      return ref.ref.slice(types[i].length + 1);
-    }
-  }
-
-  return '';
-}
-
-/**
- * Sort and clean the given `refs`
- * 
- * @param {Array} refs
- * @return {Array}
- * @api private
- */
-
-function normalize(refs){
-  return refs.filter(valid);
-
-  function valid(ref){
-    return 0 == ref.ref.indexOf('refs/tags')
-      || 0 == ref.ref.indexOf('refs/heads');
-  }
 }
