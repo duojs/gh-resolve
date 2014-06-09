@@ -53,4 +53,11 @@ describe('resolve()', function(){
       done();
     });
   })
+
+  it('should error when the repository is not found', function(done){
+    resolve('a/b@*', function(err){
+      assert(err && /github\.com\/a\/b/.test(err.message));
+      done();
+    })
+  })
 });

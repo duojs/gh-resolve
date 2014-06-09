@@ -56,7 +56,7 @@ function resolve(repo, fn, maxRetries){
   }
 
   debug('%s: git ls-remote --tags --heads', repo);
-  proc = spawn('git', ['ls-remote', '--tags', '--heads', url]);
+  proc = spawn('git', ['-c', 'core.askpass=true', 'ls-remote', '--tags', '--heads', url]);
   ++procs;
 
   proc.stdout.on('data', function(c){ stdout += c; });
