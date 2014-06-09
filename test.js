@@ -6,7 +6,7 @@ var tok = process.env.GITHUB_PASSWORD;
 
 describe('resolve()', function(){
   it('should resolve a semver version to gh ref', function(done){
-    resolve('component/component@0.19.6', user, tok, function(err, ref){
+    resolve('component/component@0.19.6', function(err, ref){
       if (err) return done(err);
       assert('0.19.6' == ref.name);
       assert('refs/tags/0.19.6' == ref.ref);
@@ -19,7 +19,7 @@ describe('resolve()', function(){
   });
 
   it('should sort properly', function(done){
-    resolve('component/component@0.19.x', user, tok, function(err, ref){
+    resolve('component/component@0.19.x', function(err, ref){
       if (err) return done(err);
       assert('0.19.9' == ref.name);
       done();
@@ -27,7 +27,7 @@ describe('resolve()', function(){
   });
 
   it('should resolve a branch to gh ref', function(done){
-    resolve('component/component@master', user, tok, function(err, ref){
+    resolve('component/component@master', function(err, ref){
       if (err) return done(err);
       assert('master' == ref.name);
       assert('refs/heads/master' == ref.ref);
@@ -37,17 +37,17 @@ describe('resolve()', function(){
   })
 
   it('should resolve branches with `/` in them', function(done){
-    resolve('segmentio/analytics.js-integrations@cleanup/structure', user, tok, function(err, ref){
+    resolve('segmentio/analytics.js-integrations@fix/km-tests', function(err, ref){
       if (err) return done(err);
-      assert('cleanup/structure' == ref.name);
-      assert('refs/heads/cleanup/structure', ref.ref);
-      assert('https://api.github.com/repos/segmentio/analytics.js-integrations/git/refs/heads/cleanup/structure' == ref.url);
+      assert('fix/km-tests' == ref.name);
+      assert('refs/heads/fix/km-tests', ref.ref);
+      assert('https://api.github.com/repos/segmentio/analytics.js-integrations/git/refs/heads/fix/km-tests' == ref.url);
       done();
     })
   })
 
   it('should default to the latest tag when the ref is `*`', function(done){
-    resolve('segmentio/analytics.js@*', user, tok, function(err, ref){
+    resolve('segmentio/analytics.js@*', function(err, ref){
       if (err) return done(err);
       assert(/[\d.]{3}/.test(ref.name));
       done();
