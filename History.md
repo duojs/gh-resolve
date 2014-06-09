@@ -1,4 +1,9 @@
 
+1.1.1 / 2014-06-09
+==================
+
+ * fix: pass -c core.askpass=true, to prevent git from asking password.
+
 1.1.0 / 2014-06-09
 ==================
 
