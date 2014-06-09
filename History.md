@@ -1,4 +1,9 @@
 
+1.1.0 / 2014-06-09
+==================
+
+ * parallel: add spawn limit and retry once on failure
+
 1.0.0 / 2014-06-09
 ==================
 
