@@ -6,7 +6,7 @@
 ## Example
 
 ```js
-resolve('component/component@0.19.6', user, tok, function(err, ref){
+resolve('component/component@0.19.6', function(err, ref){
   if (err) return done(err);
   assert('0.19.6' == ref.name);
   assert('refs/tags/0.19.6' == ref.ref);
