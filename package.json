@@ -2,8 +2,9 @@
   "name": "gh-resolve",
   "version": "1.0.0",
   "dependencies": {
-    "semver": "^2.2.1",
-    "request": "^2.34.0"
+    "debug": "^1.0.1",
+    "request": "^2.34.0",
+    "semver": "^2.2.1"
   },
   "devDependencies": {
     "mocha": "~1.18.2"
