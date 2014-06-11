@@ -36,7 +36,7 @@ function resolve(repo, fn, maxRetries){
   var parts = repo.split('@');
   var name = parts.shift();
   var version = parts.shift();
-  var url = 'https://github.com/' + name;
+  var url = 'ssh://git@github.com/' + name;
   var maxretries = maxRetries || 1;
   var stdout = '';
   var stderr = '';

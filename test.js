@@ -1,10 +1,16 @@
 
 var resolve = require('./');
 var assert = require('assert');
-var user = process.env.GITHUB_USERNAME;
-var tok = process.env.GITHUB_PASSWORD;
 
 describe('resolve()', function(){
+  it('should work on private repos', function(done){
+    resolve('component/duo@*', function(err, ref){
+      if (err) return done(err);
+      assert(ref);
+      done();
+    });
+  })
+
   it('should resolve a semver version to gh ref', function(done){
     resolve('component/component@0.19.6', function(err, ref){
       if (err) return done(err);
