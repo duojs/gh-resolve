@@ -37,11 +37,11 @@ describe('resolve()', function(){
   })
 
   it('should resolve branches with `/` in them', function(done){
-    resolve('segmentio/analytics.js-integrations@cleanup/structure', user, tok, function(err, ref){
+    resolve('segmentio/analytics.js-integrations@use/events', user, tok, function(err, ref){
       if (err) return done(err);
-      assert('cleanup/structure' == ref.name);
-      assert('refs/heads/cleanup/structure', ref.ref);
-      assert('https://api.github.com/repos/segmentio/analytics.js-integrations/git/refs/heads/cleanup/structure' == ref.url);
+      assert('use/events' == ref.name);
+      assert('refs/heads/use/events', ref.ref);
+      assert('https://api.github.com/repos/segmentio/analytics.js-integrations/git/refs/heads/use/events' == ref.url);
       done();
     })
   })
@@ -50,6 +50,22 @@ describe('resolve()', function(){
     resolve('segmentio/analytics.js@*', user, tok, function(err, ref){
       if (err) return done(err);
       assert(/[\d.]{3}/.test(ref.name));
+      done();
+    });
+  })
+
+  it('should use master when there are no tags and ref is `*`', function(done) {
+    resolve('yields/uniq@*', user, tok, function(err, ref){
+      if (err) return done(err);
+      assert('master' == ref.name);
+      done();
+    });
+  })
+
+  it('should provide better errors for invalid repos', function(done) {
+    resolve('sweet/repo@amazing/version', user, tok, function(err, ref){
+      assert(err);
+      assert(~err.message.indexOf('sweet/repo@amazing/version'));
       done();
     });
   })

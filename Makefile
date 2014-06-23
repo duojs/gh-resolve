@@ -2,6 +2,6 @@
 test:
 	@node_modules/.bin/mocha \
 		--reporter spec \
-		--timeout 4s
+		--timeout 8s
 
 .PHONY: test

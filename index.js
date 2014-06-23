@@ -27,6 +27,7 @@ function resolve(repo, user, token, fn){
   var parts = repo.split('@');
   var repo = parts.shift();
   var version = parts.shift() || '*';
+  var slug = repo + '@' + version;
   var refs = [];
 
   var headers = {
@@ -54,7 +55,7 @@ function resolve(repo, user, token, fn){
     }, function(err, res, body){
       if (err) return fn(err);
       var s = res.statusCode / 100 | 0;
-      if (4 <= s) return fn(error(res));
+      if (4 <= s) return fn(error(slug, res));
       fn(null, body, parse(res.headers.link));
     });
   }
@@ -63,14 +64,17 @@ function resolve(repo, user, token, fn){
     return 'https://api.github.com/repos/' + repo;
   }
 
-  // valid semver, only get the tags.
-  if (semver.validRange(version)) {
-    next(url(repo) + '/git/refs/tags?per_page=100&first');
-    return;
-  }
 
-  // invalid get the heads.
-  next(url(repo) + '/git/refs/heads?per_page=100&first');
+  if ('*' == version) {
+    // "*"" is a special case, get all refs
+    next(url(repo) + '/git/refs/?per_page=100&first');
+  } else if (semver.validRange(version)) {
+    // valid semver, only get the tags.
+    next(url(repo) + '/git/refs/tags?per_page=100&first');
+  } else {
+    // invalid semver, get the heads.
+    next(url(repo) + '/git/refs/heads?per_page=100&first');
+  }
 }
 
 /**
@@ -103,8 +107,12 @@ function parse(link){
 
 function satisfy(refs, version){
   refs = normalize(refs.reverse());
+  var len = refs.length;
 
-  for (var i = 0; i < refs.length; ++i) {
+  // special case for "*" when there are no tags
+  if ('*' == version && 1 == len) return refs[0];
+
+  for (var i = 0; i < len; ++i) {
     var n = name(refs[i]);
     if (n && equal(n, version)) return refs[i];
   }
@@ -143,13 +151,15 @@ function basic(user, tok){
 /**
  * Error with `res`.
  * 
+ * @param {String} slug
  * @param {Response} res
  * @return {Error}
  * @api private
  */
 
-function error(res){
-  var err = new Error(res.body.message || 'Unknown gh error');
+function error(slug, res){
+  var msg = res.body.message || 'Unknown gh error';
+  var err = new Error(slug + ': ' + msg);
   err.res = res;
   return err;
 }
