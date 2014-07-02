@@ -3,6 +3,7 @@
  * Module dependencies.
  */
 
+var debug = require('debug')('gh-resolve');
 var semver = require('semver');
 var satisfies = semver.satisfies;
 var request = require('request');
@@ -56,6 +57,7 @@ function resolve(repo, user, token, fn){
   }
 
   function get(url, fn){
+    debug('get: %s', url);
     request({
       url: url,
       json: true,
@@ -71,10 +73,17 @@ function resolve(repo, user, token, fn){
   function response(res, prev) {
     refs = refs.concat(res);
     var ref = satisfy(refs, version);
-    if (ref) ref.name = name(ref);
-    if (ref) return fn(null, ref);
-    if (prev) return next(prev);
-    fn();
+
+    if (ref) {
+      ref.name = name(ref);
+      debug('resolved: %s', ref.name);
+      return fn(null, ref);
+    } else if (prev) {
+      return next(prev);
+    } else {
+      debug('could not resolve: %s', repo);
+      fn();
+    }
   }
 
   if ('*' == version) {
