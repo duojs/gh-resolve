@@ -1,6 +1,6 @@
 
 var env = process.env;
-var resolve = require('./');
+var resolve = require('../');
 var assert = require('assert');
 var netrc = require('node-netrc');
 var auth = netrc('api.github.com') || {};
@@ -69,6 +69,14 @@ describe('resolve()', function(){
     resolve('sweet/repo@amazing/version', user, tok, function(err, ref){
       assert(err);
       assert(~err.message.indexOf('sweet/repo@amazing/version'));
+      done();
+    });
+  })
+
+  it('should resolve twbs/bootstrap@* quickly', function(done){
+    resolve('twbs/bootstrap@*', user, tok, function(err, ref){
+      if (err) return done(err);
+      assert(/[\d.]{3}/.test(ref.name));
       done();
     });
   })

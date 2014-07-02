@@ -6,6 +6,13 @@
 var semver = require('semver');
 var satisfies = semver.satisfies;
 var request = require('request');
+var fmt = require('util').format;
+
+/**
+ * Github API query
+ */
+
+var api = 'https://api.github.com/repos/%s/git/refs/%s?per_page=%s&first';
 
 /**
  * Expose `resolve`
@@ -15,7 +22,7 @@ module.exports = resolve;
 
 /**
  * Resolve `repo@version` with `user`, `token` and `fn(err, res)`.
- * 
+ *
  * @param {String} repo
  * @param {String} user
  * @param {String} token
@@ -38,13 +45,14 @@ function resolve(repo, user, token, fn){
   function next(url){
     get(url, function(err, res, prev){
       if (err) return fn(err);
-      refs = refs.concat(res);
-      if (prev) return next(prev);
-      var ref = satisfy(refs, version);
-      if (ref) ref.name = name(ref);
-      if (ref) return fn(null, ref);
-      fn();
+      response(res, prev);
     });
+  }
+
+  function star(url) {
+    get(url, function(err, res) {
+      response(res, query(repo, 'heads', 30));
+    })
   }
 
   function get(url, fn){
@@ -54,32 +62,38 @@ function resolve(repo, user, token, fn){
       headers: headers,
     }, function(err, res, body){
       if (err) return fn(err);
-      var s = res.statusCode / 100 | 0;
-      if (4 <= s) return fn(error(slug, res));
-      fn(null, body, parse(res.headers.link));
+      return notfound(res.statusCode)
+        ? fn(error(slug, res))
+        : fn(null, body, parse(res.headers.link));
     });
   }
 
-  function url(repo){
-    return 'https://api.github.com/repos/' + repo;
+  function response(res, prev) {
+    refs = refs.concat(res);
+    var ref = satisfy(refs, version);
+    if (ref) ref.name = name(ref);
+    if (ref) return fn(null, ref);
+    if (prev) return next(prev);
+    fn();
   }
 
-
   if ('*' == version) {
-    // "*"" is a special case, get all refs
-    next(url(repo) + '/git/refs/?per_page=100&first');
+    // "*"" is a special case.
+    // for perf get tags first then heads
+    // 30 is the minimum we can fetch
+    star(query(repo, 'tags', 30));
   } else if (semver.validRange(version)) {
     // valid semver, only get the tags.
-    next(url(repo) + '/git/refs/tags?per_page=100&first');
+    next(query(repo, 'tags'));
   } else {
     // invalid semver, get the heads.
-    next(url(repo) + '/git/refs/heads?per_page=100&first');
+    next(query(repo, 'heads'));
   }
 }
 
 /**
  * Parse the previous `link`.
- * 
+ *
  * @param {String} link
  * @return {String}
  * @api private
@@ -98,7 +112,7 @@ function parse(link){
 
 /**
  * Satisfy `version` with `refs`.
- * 
+ *
  * @param {Array} refs
  * @param {String} version
  * @return {Object}
@@ -109,9 +123,6 @@ function satisfy(refs, version){
   refs = normalize(refs.reverse());
   var len = refs.length;
 
-  // special case for "*" when there are no tags
-  if ('*' == version && 1 == len) return refs[0];
-
   for (var i = 0; i < len; ++i) {
     var n = name(refs[i]);
     if (n && equal(n, version)) return refs[i];
@@ -120,7 +131,7 @@ function satisfy(refs, version){
 
 /**
  * Check if the given `ref` is equal to `version`.
- * 
+ *
  * @param {String} ref
  * @param {String} version
  * @return {Boolean}
@@ -137,7 +148,7 @@ function equal(ref, version){
 
 /**
  * Basic auth for `user`, `tok`.
- * 
+ *
  * @param {String} user
  * @param {String} tok
  * @return {String}
@@ -150,7 +161,7 @@ function basic(user, tok){
 
 /**
  * Error with `res`.
- * 
+ *
  * @param {String} slug
  * @param {Response} res
  * @return {Error}
@@ -166,7 +177,7 @@ function error(slug, res){
 
 /**
  * Name the given `ref`.
- * 
+ *
  * @param {Object} ref
  * @return {String}
  * @api public
@@ -186,7 +197,7 @@ function name(ref){
 
 /**
  * Sort and clean the given `refs`
- * 
+ *
  * @param {Array} refs
  * @return {Array}
  * @api private
@@ -196,7 +207,36 @@ function normalize(refs){
   return refs.filter(valid);
 
   function valid(ref){
+    if (!ref) return;
     return 0 == ref.ref.indexOf('refs/tags')
       || 0 == ref.ref.indexOf('refs/heads');
   }
+}
+
+/**
+ * Query
+ *
+ * @param {String} repo
+ * @param {String} ref
+ * @param {String} n
+ * @return {String}
+ * @api private
+ */
+
+function query(repo, ref, n) {
+  n = n || 100;
+  return fmt(api, repo, ref, n);
+}
+
+/**
+ * Not found
+ *
+ * @param {Number} n
+ * @return {Boolean}
+ * @api private
+ */
+
+function notfound(n) {
+  n = n / 100 | 0;
+  return 4 <= n;
 }
