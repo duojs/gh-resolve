@@ -6,6 +6,7 @@
     "request": "^2.34.0"
   },
   "devDependencies": {
-    "mocha": "~1.18.2"
+    "mocha": "~1.18.2",
+    "node-netrc": "0.0.1"
   }
 }

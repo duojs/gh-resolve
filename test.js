@@ -1,8 +1,11 @@
 
+var env = process.env;
 var resolve = require('./');
 var assert = require('assert');
-var user = process.env.GITHUB_USERNAME;
-var tok = process.env.GITHUB_PASSWORD;
+var netrc = require('node-netrc');
+var auth = netrc('api.github.com') || {};
+var user = env.GITHUB_USERNAME || auth.login;
+var tok = env.GITHUB_PASSWORD || auth.password;
 
 describe('resolve()', function(){
   it('should resolve a semver version to gh ref', function(done){
