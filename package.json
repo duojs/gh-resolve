@@ -1,6 +1,7 @@
 {
   "name": "gh-resolve",
   "version": "2.0.2",
+  "repository": "yields/gh-resolve",
   "dependencies": {
     "debug": "^1.0.2",
     "request": "^2.34.0",
