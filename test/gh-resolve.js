@@ -58,7 +58,7 @@ describe('resolve()', function(){
   })
 
   it('should use master when there are no tags and ref is `*`', function(done) {
-    resolve('yields/uniq@*', user, tok, function(err, ref){
+    resolve('matthewmueller/throttle@*', user, tok, function(err, ref){
       if (err) return done(err);
       assert('master' == ref.name);
       done();
