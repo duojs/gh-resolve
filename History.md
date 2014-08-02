@@ -1,4 +1,9 @@
 
+3.0.0 / 2014-08-02
+==================
+
+ * bring back `git ls-remote` resolution, refactored old branch
+
 2.0.2 / 2014-07-02
 ==================
 
