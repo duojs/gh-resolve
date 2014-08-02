@@ -4,8 +4,11 @@
   "repository": "yields/gh-resolve",
   "dependencies": {
     "debug": "^1.0.2",
+    "mini-tokenizer": "^0.1.2",
+    "queue-component": "^1.0.5",
     "request": "^2.34.0",
-    "semver": "^2.2.1"
+    "semver": "^2.2.1",
+    "enqueue": "0.0.2"
   },
   "devDependencies": {
     "mocha": "~1.18.2",
