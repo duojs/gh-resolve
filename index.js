@@ -47,14 +47,15 @@ function resolve(slug, opts, fn){
     opts = {};
   }
 
-  // options
-  opts.retries = undefined == opts.retries ? 1 : opts.retries;
-
   var repo = slug.split('@')[0];
   var ref = slug.split('@')[1];
   var url = remote(repo, opts.token);
   var cmd = fmt('git ls-remote --tags --heads %s', url);
 
+  // options
+  opts.retries = undefined == opts.retries ? 1 : opts.retries;
+
+  // max retries reached
   if (!~opts.retries) {
     debug('%s: max retries reached.', slug);
     return fn(error('%s: cannot resolve', slug));
@@ -70,8 +71,9 @@ function resolve(slug, opts, fn){
     fn(null, tag);
   });
 
+  // retry
   function retry(err){
-    if (err.message.indexOf('fatal: unable to access')) {
+    if (~err.message.indexOf('fatal: unable to access')) {
       debug('%s: unable to access, trying again...', slug);
       opts.retries--;
       resolve(slug, opts, fn);
