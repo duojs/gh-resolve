@@ -74,7 +74,7 @@ function resolve(slug, opts, fn){
   // retry
   function retry(err){
     if (~err.message.indexOf('fatal: unable to access')) {
-      debug('%s: unable to access, trying again...', slug);
+      debug('%s: unable to access, trying %s more time', slug, opts.retries);
       opts.retries--;
       resolve(slug, opts, fn);
     } else {
