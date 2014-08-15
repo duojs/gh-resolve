@@ -87,4 +87,12 @@ describe('resolve()', function(){
       done();
     })
   })
+
+  it('should mask token on error', function(done) {
+    resolve('sweet/repo@amazing/version', { token: tok }, function(err, ref){
+      assert(err);
+      assert(~err.message.indexOf("repository 'https://{{token}}@github.com/sweet/repo/' not found"));
+      done();
+    });
+  })
 });

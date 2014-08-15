@@ -62,9 +62,9 @@ function resolve(slug, opts, fn){
   }
 
   // execute
-  debug('executing: %s', cmd);
+  debug('executing: %s', mask(cmd));
   exec(cmd, function(err, stdout, stderr) {
-    debug('executed: %s', cmd);
+    debug('executed: %s', mask(cmd));
     if (err || stderr) return retry(error(err || stderr));
     var refs = tokens(stdout).sort(arrange);
     var tag = satisfy(refs, ref);
@@ -161,8 +161,20 @@ function equal(ref, version){
  */
 
 function error(err) {
-  err = err || err.message;
+  err = err.message || err;
   var args = slice.call(arguments, 1);
   var msg = fmt.apply(fmt, [err].concat(args));
-  return new Error(msg);
+  return new Error(mask(msg));
+}
+
+/**
+ * Mask GitHub token in URL, so it doesn't show up in logs.
+ *
+ * @param {String} url
+ * @return {String}
+ * @api private
+ */
+
+function mask(url) {
+  return url.replace(/\w+@github.com/g, '{{token}}@github.com');
 }
