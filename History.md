@@ -1,4 +1,9 @@
 
+3.0.2 / 2014-08-15
+==================
+
+ * mask github token when logging, to prevent hacking
+
 3.0.1 / 2014-08-02
 ==================
 
