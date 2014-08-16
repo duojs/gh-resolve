@@ -176,5 +176,5 @@ function error(err) {
  */
 
 function mask(url) {
-  return url.replace(/\w+@github.com/g, '{{token}}@github.com');
+  return url.replace(/\w+@github.com/g, '<token>@github.com');
 }
