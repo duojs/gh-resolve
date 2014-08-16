@@ -1,4 +1,10 @@
 
+3.0.3 / 2014-08-16
+==================
+
+ * mask: use <token> instead of {{token}}
+ * semver: loosen semver compare()
+
 3.0.2 / 2014-08-15
 ==================
 
