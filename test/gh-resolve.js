@@ -95,4 +95,12 @@ describe('resolve()', function(){
       done();
     });
   })
+
+  it('should work on weird semvers', function(done){
+    resolve('chjj/marked@*', function(err, ref){
+      if (err) return done(err);
+      assert(/v[.\d]+/.test(ref.name));
+      done()
+    })
+  });
 });

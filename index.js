@@ -130,7 +130,7 @@ function arrange(a, b) {
 
   // compare the semver
   if (ta && tb) {
-    return -compare(a.name, b.name);
+    return -compare(a.name, b.name, true);
   }
 }
 
@@ -145,7 +145,7 @@ function arrange(a, b) {
 
 function equal(ref, version){
   try {
-    return satisfies(ref, version) || ref == version;
+    return satisfies(ref, version, true) || ref == version;
   } catch (e) {
     return ref == version;
   }
