@@ -80,7 +80,7 @@ describe('resolve()', function(){
     });
   })
 
-  it('should resolve private repos', function() {
+  it('should resolve private repos', function(done) {
     resolve('component/duo@*', { token: tok }, function(err, ref) {
       if (err) return done(err);
       assert(/[\d.]{3}/.test(ref.name));
@@ -91,7 +91,8 @@ describe('resolve()', function(){
   it('should mask token on error', function(done) {
     resolve('sweet/repo@amazing/version', { token: tok }, function(err, ref){
       assert(err);
-      assert(~err.message.indexOf("repository 'https://{{token}}@github.com/sweet/repo/' not found"));
+      assert(!~err.message.indexOf(tok));
+      assert(~err.message.indexOf("repository 'https://<token>@github.com/sweet/repo/' not found"));
       done();
     });
   })
