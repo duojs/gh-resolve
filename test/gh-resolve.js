@@ -41,9 +41,9 @@ describe('resolve()', function(){
   })
 
   it('should resolve branches with `/` in them', function(done){
-    resolve('segmentio/analytics.js-integrations@use/events', function(err, ref){
+    resolve('cheeriojs/cheerio@refactor/core', function(err, ref){
       if (err) return done(err);
-      assert('use/events' == ref.name);
+      assert('refactor/core' == ref.name);
       done();
     })
   })
