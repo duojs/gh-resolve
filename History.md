@@ -1,4 +1,10 @@
 
+3.0.4 / 2014-09-24
+==================
+
+ * Fix: pass over invalid semver tags
+ * test: Fix broken test cases
+
 3.0.3 / 2014-08-16
 ==================
 
