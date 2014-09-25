@@ -10,6 +10,7 @@ var enqueue = require('enqueue');
 var semver = require('semver');
 var satisfies = semver.satisfies;
 var compare = semver.compare;
+var valid = semver.valid;
 var slice = [].slice;
 
 /**
@@ -124,9 +125,18 @@ function arrange(a, b) {
   var ta = a.type == 'tag';
   var tb = b.type == 'tag';
 
-  // place valid ranges in front
+  // place valid tags in front
   if (ta && !tb) return -1;
   if (tb && !ta) return 1;
+
+  var va = !!valid(a.name);
+  var vb = !!valid(b.name);
+
+  // place valid semver in front
+  // if neither are valid, leave as is
+  if (va && !vb) return -1;
+  if (!va && !vb) return 0;
+  if (vb && !va) return 1;
 
   // compare the semver
   if (ta && tb) {

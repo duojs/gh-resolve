@@ -104,4 +104,12 @@ describe('resolve()', function(){
       done()
     })
   });
+
+  it('should resolve multiple non-semantic semvers', function(done) {
+    resolve('alexei/sprintf.js@*', function(err, ref) {
+      if (err) return done(err);
+      assert(/[\d.]{3}/.test(ref.name));
+      done();
+    })
+  });
 });
