@@ -47,10 +47,14 @@ function resolve(slug, opts, fn){
     fn = opts
     opts = {};
   }
-
+  var token = opts.token || (
+      opts.password && opts.username
+        ? [opts.username, opts.password].join(':')
+        : ''
+    );
   var repo = slug.split('@')[0];
   var ref = slug.split('@')[1];
-  var url = remote(repo, opts.token);
+  var url = remote(repo, token);
   var cmd = fmt('git ls-remote --tags --heads %s', url);
 
   // options

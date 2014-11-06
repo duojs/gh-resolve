@@ -97,6 +97,16 @@ describe('resolve()', function(){
     });
   })
 
+  it('should mask password on error', function(done) {
+    var opts = { username: 'someuser', password: 'somepassword' };
+    resolve('decent/repo@good/version', opts, function(err){
+      assert(err);
+      assert(!~err.message.indexOf('somepassword'));
+      assert(~err.message.indexOf('someuser:<token>@github'));
+      done();
+    })
+  })
+
   it('should work on weird semvers', function(done){
     resolve('chjj/marked@*', function(err, ref){
       if (err) return done(err);
