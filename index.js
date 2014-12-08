@@ -111,10 +111,13 @@ function remote(name, token) {
  */
 
 function satisfy(refs, version){
+  var master;
   for (var i = 0, ref; ref = refs[i++];) {
+    if ('master' == ref.name) master = ref;
     if (equal(ref.name, version)) return ref;
   }
-};
+  return master;
+}
 
 /**
  * Arrange the refs
