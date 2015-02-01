@@ -64,6 +64,14 @@ describe('resolve()', function(){
     });
   })
 
+  it('should use master when there are no tags', function(done){
+    resolve('mnmly/slider', function(err, ref){
+      if (err) return done(err);
+      assert('master' == ref.name);
+      done();
+    })
+  })
+
   it('should provide better errors for invalid repos', function(done) {
     resolve('sweet/repo@amazing/version', function(err, ref){
       assert(err);
