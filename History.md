@@ -1,4 +1,12 @@
 
+3.1.0 / 2015-02-01
+==================
+
+  * index: Default to `master` when there are no tags [stephenmathieson]
+  * Makefile: add a `node_modules` target
+  * index: Add support for username and password
+
+
 3.0.4 / 2014-09-24
 ==================
 
