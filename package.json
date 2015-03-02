@@ -1,7 +1,7 @@
 {
   "name": "gh-resolve",
   "version": "3.1.0",
-  "repository": "yields/gh-resolve",
+  "repository": "duojs/gh-resolve",
   "dependencies": {
     "debug": "^1.0.2",
     "enqueue": "0.0.x",
