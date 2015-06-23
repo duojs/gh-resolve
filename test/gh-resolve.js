@@ -15,9 +15,9 @@ var tok = env.GITHUB_PASSWORD || auth.password;
 
 describe('resolve()', function(){
   it('should resolve a semver version to gh ref', function(done){
-    resolve('component/component@0.19.6', function(err, ref){
+    resolve('componentjs/component@0.19.6', { token: tok }, function(err, ref){
       if (err) return done(err);
-      assert.equal(ref.sha, '6d6501d002aef91f1261f6ec98c6ed32046fe46a');
+      assert.equal(ref.sha, 'a15d8d10c4c60429cda4080ffd16f2d408992a6d');
       assert.equal(ref.name, '0.19.6');
       assert.equal(ref.type, 'tag');
       done();
@@ -25,7 +25,7 @@ describe('resolve()', function(){
   });
 
   it('should sort properly', function(done){
-    resolve('component/component@0.19.x', function(err, ref){
+    resolve('componentjs/component@0.19.x', function(err, ref){
       if (err) return done(err);
       assert.equal(ref.name, '0.19.9');
       done();
@@ -33,7 +33,7 @@ describe('resolve()', function(){
   });
 
   it('should resolve a branch to gh ref', function(done){
-    resolve('component/component@master', function(err, ref){
+    resolve('componentjs/component@master', function(err, ref){
       if (err) return done(err);
       assert.equal(ref.name, 'master');
       done();
@@ -75,7 +75,7 @@ describe('resolve()', function(){
   it('should provide better errors for invalid repos', function(done) {
     resolve('sweet/repo@amazing/version', function(err){
       assert(err);
-      assert(err.message.indexOf('Repository not found.') > -1);
+      assert(err.message.indexOf('Not Found') > -1);
       done();
     });
   });
@@ -89,28 +89,9 @@ describe('resolve()', function(){
   });
 
   it('should resolve private repos', function(done) {
-    resolve('component/duo@*', { token: tok }, function(err, ref) {
+    resolve('segmentio/duo', { token: tok }, function(err, ref) {
       if (err) return done(err);
       assert(/[\d.]{3}/.test(ref.name));
-      done();
-    });
-  });
-
-  it('should mask token on error', function(done) {
-    resolve('sweet/repo@amazing/version', { token: tok }, function(err){
-      assert(err);
-      assert.equal(err.message.indexOf(tok), -1);
-      assert(err.message.indexOf('repository \'https://<token>@github.com/sweet/repo/\' not found') > -1);
-      done();
-    });
-  });
-
-  it('should mask password on error', function(done) {
-    var opts = { username: 'someuser', password: 'somepassword' };
-    resolve('decent/repo@good/version', opts, function(err){
-      assert(err);
-      assert.equal(err.message.indexOf('somepassword'), -1);
-      assert(err.message.indexOf('someuser:<token>@github') > -1);
       done();
     });
   });

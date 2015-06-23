@@ -3,8 +3,11 @@
   "version": "3.1.0",
   "repository": "duojs/gh-resolve",
   "dependencies": {
+    "conceal": "^1.0.0",
     "debug": "^1.0.2",
+    "duo-parse": "^0.2.0",
     "enqueue": "0.0.x",
+    "github": "^0.2.4",
     "mini-tokenizer": "^0.1.2",
     "request": "^2.34.0",
     "semver": "^2.2.1"

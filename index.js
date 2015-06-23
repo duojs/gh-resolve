@@ -2,30 +2,13 @@
  * Module dependencies.
  */
 
+var conceal = require('conceal');
 var debug = require('debug')('gh-resolve');
-var tokenizer = require('mini-tokenizer');
-var exec = require('child_process').exec;
 var fmt = require('util').format;
 var enqueue = require('enqueue');
+var parse = require('duo-parse');
 var semver = require('semver');
-var satisfies = semver.satisfies;
-var compare = semver.compare;
-var valid = semver.valid;
-var slice = [].slice;
-
-/**
- * Regexps
- */
-
-var rref = /([A-Fa-f0-9]{40})[\t\s]+refs\/(head|tag)s\/([A-Za-z0-9-_\/\.$!#%&\(\)\+=]+)\n/g;
-
-/**
- * Tokenizer
- */
-
-var tokens = tokenizer(rref, function(m) {
-  return { sha: m[1], type: m[2], name: m[3] };
-});
+var GitHub = require('github');
 
 /**
  * Expose `resolve`
@@ -47,15 +30,13 @@ function resolve(slug, opts, fn){
     fn = opts;
     opts = {};
   }
-  var token = opts.token || (
-      opts.password && opts.username
-        ? [opts.username, opts.password].join(':')
-        : ''
-    );
-  var repo = slug.split('@')[0];
-  var ref = slug.split('@')[1];
-  var url = remote(repo, token);
-  var cmd = fmt('git ls-remote --tags --heads %s', url);
+
+  var gh = new GitHub({ version: '3.0.0', debug: false });
+  var auth = authenticate(opts);
+  if (auth) gh.authenticate(auth);
+
+  var parsed = parse(slug);
+  var ref = parsed.ref || '*';
 
   // options
   opts.retries = typeof opts.retries === 'undefined' ? 1 : opts.retries;
@@ -67,14 +48,64 @@ function resolve(slug, opts, fn){
   }
 
   // execute
-  debug('executing: %s', mask(cmd));
-  exec(cmd, function(err, stdout, stderr) {
-    debug('executed: %s', mask(cmd));
-    if (err || stderr) return retry(error(err || stderr));
-    var refs = tokens(stdout).sort(arrange);
-    var tag = satisfy(refs, ref);
-    fn(null, tag);
-  });
+  if (semver.validRange(ref) || semver.valid(ref)) {
+    tags(ref);
+  } else {
+    branch(ref);
+  }
+
+
+  // get version via branch name
+  function branch(name) {
+    debug('retrieving %s via branch %s', slug);
+
+    var msg = {
+      user: parsed.user,
+      repo: parsed.repo,
+      branch: name
+    };
+
+    gh.repos.getBranch(msg, function (err, data) {
+      if (err) return retry(error(JSON.parse(err.message)));
+      if (data && data.meta) rateLimit(data.meta);
+
+      fn(null, {
+        name: data.name,
+        sha: data.commit.sha,
+        type: 'branch'
+      });
+    });
+  }
+
+  // get version via tags
+  function tags(range) {
+    debug('retrieving %s via tags', slug);
+
+    var msg = {
+      user: parsed.user,
+      repo: parsed.repo
+    };
+
+    gh.repos.getTags(msg, function (err, data) {
+      if (err) return retry(error(JSON.parse(err.message)));
+      if (data && data.meta) rateLimit(data.meta);
+      if (!data.length) return branch('master');
+
+      var tags = data.reduce(function (acc, tag) {
+        acc[tag.name] = {
+          name: tag.name,
+          sha: tag.commit.sha,
+          type: 'tag'
+        };
+
+        return acc;
+      }, {});
+
+      var tagNames = Object.keys(tags).filter(function (name) { return !!semver.valid(name); });
+      var tag = semver.maxSatisfying(tagNames, range);
+      fn(null, tags[tag]);
+    });
+  }
 
   // retry
   function retry(err){
@@ -89,83 +120,22 @@ function resolve(slug, opts, fn){
 }
 
 /**
- * Get the remote url
+ * Get params for github.authenticate()
  *
- * @param {String} token (optional)
- * @return {String}
- * @api private
- */
-
-function remote(name, token) {
-  token = token ? token + '@' : '';
-  return fmt('https://%sgithub.com/%s', token, name);
-}
-
-/**
- * Satisfy `version` with `refs`.
- *
- * @param {Array} refs
- * @param {String} version
+ * @param {Object} opts
  * @return {Object}
- * @api privae
- */
-
-function satisfy(refs, version){
-  var master;
-  for (var i = 0; i < refs.length; i++) {
-    var ref = refs[i];
-    if (ref.name === 'master') master = ref;
-    if (equal(ref.name, version)) return ref;
-  }
-  return master;
-}
-
-/**
- * Arrange the refs
- *
- * @param {Object} a
- * @param {Object} b
- * @return {Number}
- * @api public
- */
-
-function arrange(a, b) {
-  var ta = a.type === 'tag';
-  var tb = b.type === 'tag';
-
-  // place valid tags in front
-  if (ta && !tb) return -1;
-  if (tb && !ta) return 1;
-
-  var va = !!valid(a.name);
-  var vb = !!valid(b.name);
-
-  // place valid semver in front
-  // if neither are valid, leave as is
-  if (va && !vb) return -1;
-  if (!va && !vb) return 0;
-  if (vb && !va) return 1;
-
-  // compare the semver
-  if (ta && tb) {
-    return -compare(a.name, b.name, true);
-  }
-}
-
-/**
- * Check if the given `ref` is equal to `version`.
- *
- * @param {String} ref
- * @param {String} version
- * @return {Boolean}
  * @api private
  */
 
-function equal(ref, version){
-  try {
-    return satisfies(ref, version, true) || ref === version;
-  } catch (e) {
-    return ref === version;
+function authenticate(opts) {
+  if (opts.token) {
+    debug('token auth: %s', conceal(opts.token, { start: 6 }));
+    return { type: 'oauth', token: opts.token };
+  } else if (opts.username) {
+    debug('basic auth: %s / %s', opts.username, conceal(opts.password));
+    return { type: 'basic', username: opts.username, password: opts.password };
+  } else {
+    return false;
   }
 }
 
@@ -180,19 +150,21 @@ function equal(ref, version){
 
 function error(err) {
   err = err.message || err;
-  var args = slice.call(arguments, 1);
+  var args = [].slice.call(arguments, 1);
   var msg = fmt.apply(fmt, [err].concat(args));
-  return new Error(mask(msg));
+  return new Error(msg);
 }
 
 /**
- * Mask GitHub token in URL, so it doesn't show up in logs.
+ * Outputs rate-limit information via debug.
  *
- * @param {String} url
- * @return {String}
+ * @param {Object} meta
  * @api private
  */
 
-function mask(url) {
-  return url.replace(/\w+@github.com/g, '<token>@github.com');
+function rateLimit(meta) {
+  var remaining = meta['x-ratelimit-remaining'];
+  var limit = meta['x-ratelimit-limit'];
+  var reset = new Date(meta['x-ratelimit-reset'] * 1000);
+  debug('rate limit status: %d / %d (resets: %s)', remaining, limit, reset);
 }
