@@ -5,10 +5,10 @@
 var conceal = require('conceal');
 var debug = require('debug')('gh-resolve');
 var fmt = require('util').format;
+var github = require('./lib/github');
 var enqueue = require('enqueue');
 var parse = require('duo-parse');
 var semver = require('semver');
-var GitHub = require('github');
 
 /**
  * Expose `resolve`
@@ -31,10 +31,7 @@ function resolve(slug, opts, fn){
     opts = {};
   }
 
-  var gh = new GitHub({ version: '3.0.0' });
-  var auth = authenticate(opts);
-  if (auth) gh.authenticate(auth);
-
+  var gh = github({ token: opts.token });
   var parsed = parse(slug);
   var ref = parsed.ref || '*';
 
@@ -54,20 +51,13 @@ function resolve(slug, opts, fn){
     branch(ref);
   }
 
-
   // get version via branch name
   function branch(name) {
-    debug('retrieving %s via branch %s', slug);
+    debug('retrieving %s via branch', slug);
 
-    var msg = {
-      user: parsed.user,
-      repo: parsed.repo,
-      branch: name
-    };
-
-    gh.repos.getBranch(msg, function (err, data) {
-      if (err) return retry(error(JSON.parse(err.message)));
-      if (data && data.meta) rateLimit(data.meta);
+    gh.branch(parsed.user, parsed.repo, name, function (err, res, data) {
+      if (err) return retry(error(err));
+      rateLimit(res.headers);
 
       fn(null, {
         name: data.name,
@@ -81,14 +71,9 @@ function resolve(slug, opts, fn){
   function tags(range) {
     debug('retrieving %s via tags', slug);
 
-    var msg = {
-      user: parsed.user,
-      repo: parsed.repo
-    };
-
-    gh.repos.getTags(msg, function (err, data) {
-      if (err) return retry(error(JSON.parse(err.message)));
-      if (data && data.meta) rateLimit(data.meta);
+    gh.tags(parsed.user, parsed.repo, function (err, res, data) {
+      if (err) return retry(error(err));
+      rateLimit(res.headers);
       if (!data.length) return branch('master');
 
       var tags = data.reduce(function (acc, tag) {
@@ -158,13 +143,13 @@ function error(err) {
 /**
  * Outputs rate-limit information via debug.
  *
- * @param {Object} meta
+ * @param {Object} headers
  * @api private
  */
 
-function rateLimit(meta) {
-  var remaining = meta['x-ratelimit-remaining'];
-  var limit = meta['x-ratelimit-limit'];
-  var reset = new Date(meta['x-ratelimit-reset'] * 1000);
+function rateLimit(headers) {
+  var remaining = headers['x-ratelimit-remaining'];
+  var limit = headers['x-ratelimit-limit'];
+  var reset = new Date(headers['x-ratelimit-reset'] * 1000);
   debug('rate limit status: %d / %d (resets: %s)', remaining, limit, reset);
 }

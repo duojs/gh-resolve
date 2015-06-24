@@ -88,7 +88,7 @@ describe('resolve()', function(){
     });
   });
 
-  it('should resolve private repos', function(done) {
+  it('should resolve renamed repos', function(done) {
     resolve('segmentio/duo', { token: tok }, function(err, ref) {
       if (err) return done(err);
       assert(/[\d.]{3}/.test(ref.name));
