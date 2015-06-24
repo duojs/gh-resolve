@@ -54,6 +54,7 @@ function resolve(slug, opts, fn){
   // get version via branch name
   function branch(name) {
     debug('retrieving %s via branch', slug);
+    if (opts.token) debug('using token: %s', conceal(opts.token, { start: 6 }));
 
     gh.branch(parsed.user, parsed.repo, name, function (err, res, data) {
       if (err) return retry(error(err));
@@ -70,6 +71,7 @@ function resolve(slug, opts, fn){
   // get version via tags
   function tags(range) {
     debug('retrieving %s via tags', slug);
+    if (opts.token) debug('using token: %s', conceal(opts.token, { start: 6 }));
 
     gh.tags(parsed.user, parsed.repo, function (err, res, data) {
       if (err) return retry(error(err));
