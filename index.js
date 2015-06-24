@@ -31,7 +31,7 @@ function resolve(slug, opts, fn){
     opts = {};
   }
 
-  var gh = new GitHub({ version: '3.0.0', debug: false });
+  var gh = new GitHub({ version: '3.0.0' });
   var auth = authenticate(opts);
   if (auth) gh.authenticate(auth);
 
