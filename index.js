@@ -43,8 +43,8 @@ module.exports = enqueue(resolve, 100);
  */
 
 function resolve(slug, opts, fn){
-  if (2 == arguments.length) {
-    fn = opts
+  if (arguments.length === 2) {
+    fn = opts;
     opts = {};
   }
   var token = opts.token || (
@@ -58,7 +58,7 @@ function resolve(slug, opts, fn){
   var cmd = fmt('git ls-remote --tags --heads %s', url);
 
   // options
-  opts.retries = undefined == opts.retries ? 1 : opts.retries;
+  opts.retries = typeof opts.retries === 'undefined' ? 1 : opts.retries;
 
   // max retries reached
   if (!~opts.retries) {
@@ -112,8 +112,9 @@ function remote(name, token) {
 
 function satisfy(refs, version){
   var master;
-  for (var i = 0, ref; ref = refs[i++];) {
-    if ('master' == ref.name) master = ref;
+  for (var i = 0; i < refs.length; i++) {
+    var ref = refs[i];
+    if (ref.name === 'master') master = ref;
     if (equal(ref.name, version)) return ref;
   }
   return master;
@@ -129,8 +130,8 @@ function satisfy(refs, version){
  */
 
 function arrange(a, b) {
-  var ta = a.type == 'tag';
-  var tb = b.type == 'tag';
+  var ta = a.type === 'tag';
+  var tb = b.type === 'tag';
 
   // place valid tags in front
   if (ta && !tb) return -1;
@@ -162,9 +163,9 @@ function arrange(a, b) {
 
 function equal(ref, version){
   try {
-    return satisfies(ref, version, true) || ref == version;
+    return satisfies(ref, version, true) || ref === version;
   } catch (e) {
-    return ref == version;
+    return ref === version;
   }
 }
 

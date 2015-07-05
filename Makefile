@@ -1,11 +1,16 @@
 
+BIN := ./node_modules/.bin
+MOCHA := $(BIN)/mocha
+ESLINT := $(BIN)/eslint
+
 test: node_modules
-	@node_modules/.bin/mocha \
-		--reporter spec \
-		--timeout 8s
+	@$(MOCHA)
 
 node_modules: package.json
 	@npm install
 	@touch $@
 
-.PHONY: test
+lint: node_modules
+	@$(ESLINT) .
+
+.PHONY: test lint
