@@ -1,9 +1,9 @@
 language: node_js
 node_js:
-  - "0.10"
-  - "0.11"
-  - "0.12"
-  - "iojs"
+  - '0.10'
+  - '0.11'
+  - '0.12'
+  - iojs
 script: make lint test
 cache:
   directories:
@@ -11,4 +11,4 @@ cache:
 sudo: false
 env:
   global:
-    - secure: WdPVuaRFwTYKNFx7goA36QGwCPDATLT1PUL3XLilZX/AlfjgRICZn7/55WnSk7IJtkexYA4uuXlqIqefWMEACHW0gzwYrQES90wRonLUPYEbUUlfhXJFKWE1XCQRXDUDk1vX+XaIjsH52HcYGDbfauU8sRvrzOq1kPd5R2jWkRE=
+    secure: ZRRIvFc4yGEFUXj/6uu/0aLzKbk4qnkj2yLXBBkGANjT0eAlXgCOsbNVSswXX333NyXqUVOWl6dP1bL/veBN9o0Nou3CYwpbOz/LTFfdvifPA/80M5HhnkxWxQAjxiB4LNmqKDeIqZtHtAwxi0wlSKUwY4WNUy95uT+jyQbLZjk=

@@ -1,13 +1,13 @@
+
 /**
  * Module Dependencies
  */
 
-var env = process.env;
 var resolve = require('../');
 var assert = require('assert');
 var netrc = require('node-netrc');
 var auth = netrc('api.github.com') || {};
-var tok = env.GITHUB_PASSWORD || auth.password;
+var tok = process.env.GH_TOKEN || auth.password;
 
 /**
  * Tests
