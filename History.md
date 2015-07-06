@@ -1,4 +1,11 @@
 
+4.0.0 / 2015-07-06
+==================
+
+  * Using GH API internally again
+  * Adding Travis
+  * Adding ESLint
+
 3.1.0 / 2015-02-01
 ==================
 
