@@ -107,26 +107,6 @@ function resolve(slug, opts, fn){
 }
 
 /**
- * Get params for github.authenticate()
- *
- * @param {Object} opts
- * @return {Object}
- * @api private
- */
-
-function authenticate(opts) {
-  if (opts.token) {
-    debug('token auth: %s', conceal(opts.token, { start: 6 }));
-    return { type: 'oauth', token: opts.token };
-  } else if (opts.username) {
-    debug('basic auth: %s / %s', opts.username, conceal(opts.password));
-    return { type: 'basic', username: opts.username, password: opts.password };
-  } else {
-    return false;
-  }
-}
-
-/**
  * Create an error
  *
  * @param {String|Error} err
