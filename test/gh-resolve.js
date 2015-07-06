@@ -75,7 +75,7 @@ describe('resolve()', function(){
   it('should provide better errors for invalid repos', function(done) {
     resolve('sweet/repo@amazing/version', function(err){
       assert(err);
-      assert(~err.message.indexOf('Repository not found.'));
+      assert(err.message.indexOf('Repository not found.') > -1);
       done();
     });
   });
@@ -99,8 +99,8 @@ describe('resolve()', function(){
   it('should mask token on error', function(done) {
     resolve('sweet/repo@amazing/version', { token: tok }, function(err){
       assert(err);
-      assert(!~err.message.indexOf(tok));
-      assert(~err.message.indexOf('repository \'https://<token>@github.com/sweet/repo/\' not found'));
+      assert.equal(err.message.indexOf(tok), -1);
+      assert(err.message.indexOf('repository \'https://<token>@github.com/sweet/repo/\' not found') > -1);
       done();
     });
   });
@@ -109,8 +109,8 @@ describe('resolve()', function(){
     var opts = { username: 'someuser', password: 'somepassword' };
     resolve('decent/repo@good/version', opts, function(err){
       assert(err);
-      assert(!~err.message.indexOf('somepassword'));
-      assert(~err.message.indexOf('someuser:<token>@github'));
+      assert.equal(err.message.indexOf('somepassword'), -1);
+      assert(err.message.indexOf('someuser:<token>@github') > -1);
       done();
     });
   });
