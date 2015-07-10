@@ -62,9 +62,18 @@ describe('resolve()', function(){
   it('should provide better errors for invalid repos', function*(){
     try {
       yield resolve('sweet/repo@amazing/version', auth);
-      throw new Error('this should have failed');
+      throw new Error('should have failed');
     } catch (err) {
-      assert(err.message.indexOf('Not Found') > -1);
+      assert.equal(err.message, 'unable to resolve');
+    }
+  });
+
+  it('should throw for a missing tag', function*(){
+    try {
+      yield resolve('componentjs/component@0.0.0', auth);
+      throw new Error('should have failed');
+    } catch (err) {
+      assert.equal(err.message, 'unable to resolve');
     }
   });
 
