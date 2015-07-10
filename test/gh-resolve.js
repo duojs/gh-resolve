@@ -3,10 +3,19 @@
  * Module Dependencies
  */
 
-var resolve = require('../');
 var assert = require('assert');
+var Cache = require('duo-cache');
 var netrc = require('node-netrc');
+var path = require('path');
+var os = require('os');
+var resolve = require('../');
+
+/**
+ * Local variables.
+ */
+
 var auth = netrc('api.github.com') || { token: process.env.GH_TOKEN };
+var tmp = path.join(os.tmpdir(), 'duo-cache');
 
 /**
  * Tests
@@ -50,15 +59,6 @@ describe('resolve()', function(){
     assert.equal(ref.name, 'master');
   });
 
-  it('should provide better errors for invalid repos', function*(){
-    try {
-      yield resolve('sweet/repo@amazing/version', auth);
-      throw new Error('this should have failed');
-    } catch (err) {
-      assert(err.message.indexOf('Not Found') > -1);
-    }
-  });
-
   it('should resolve twbs/bootstrap@* quickly', function*(){
     var ref = yield resolve('twbs/bootstrap@*', auth);
     assert(/[\d.]{3}/.test(ref.name));
@@ -81,5 +81,67 @@ describe('resolve()', function(){
 
   it('should work on weird branches', function*() {
     yield resolve('cheeriojs/cheerio@refactor/core', auth);
+  });
+
+  context('errors', function () {
+    it('should throw for non-existant repos', function*(){
+      try {
+        yield resolve('sweet/repo', auth);
+        throw new Error('should have failed');
+      } catch (err) {
+        assert.equal(err.message, 'unable to resolve sweet/repo');
+      }
+    });
+
+    it('should throw for non-existant repos (even w/ a version)', function*(){
+      try {
+        yield resolve('sweet/repo@amazing/version', auth);
+        throw new Error('should have failed');
+      } catch (err) {
+        assert.equal(err.message, 'unable to resolve sweet/repo@amazing/version');
+      }
+    });
+
+    it('should throw for a non-existant tag', function*(){
+      try {
+        yield resolve('componentjs/component@0.0.0', auth);
+        throw new Error('should have failed');
+      } catch (err) {
+        assert.equal(err.message, 'unable to resolve componentjs/component@0.0.0');
+      }
+    });
+  });
+
+  describe('with cache', function(){
+    var goal;
+    var cache = new Cache(tmp);
+    var options = {
+      cache: cache,
+      token: auth.token || auth.password
+    };
+
+    before(function*(){
+      yield cache.initialize();
+      var start = new Date().getTime();
+      yield resolve('component/each', options);
+      var end = new Date().getTime();
+      goal = end - start;
+    });
+
+    after(function*() {
+      yield cache.clean();
+    });
+
+    it('should still work', function*() {
+      yield resolve('component/each', options);
+    });
+
+    it('should go faster', function*(){
+      var start = new Date().getTime();
+      yield resolve('component/each', options);
+      var end = new Date().getTime();
+      var time = end - start;
+      assert(time <= goal, 'should have been faster than ' + goal + 'ms (actual: ' + time + 'ms)');
+    });
   });
 });

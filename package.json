@@ -7,12 +7,13 @@
     "co-request": "^0.2.1",
     "conceal": "^1.0.0",
     "debug": "^2.2.0",
-    "duo-parse": "^0.2.0",
+    "duo-parse": "^0.3.0",
     "semver": "^4.3.6",
     "unyield": "0.0.1"
   },
   "devDependencies": {
     "co-mocha": "~1.0.3",
+    "duo-cache": "^2.1.1",
     "eslint": "^0.24.0",
     "eslint-config-duo": "0.0.1",
     "gnode": "^0.1.1",
