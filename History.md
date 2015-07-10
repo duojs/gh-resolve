@@ -1,4 +1,10 @@
 
+5.0.0 / 2015-07-10
+==================
+
+  * using generators internally for async
+  * adding 2 layers of cache to improve performance
+
 4.0.0 / 2015-07-06
 ==================
 
