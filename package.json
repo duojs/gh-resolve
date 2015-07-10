@@ -14,7 +14,7 @@
   "devDependencies": {
     "co-mocha": "~1.0.3",
     "duo-cache": "^2.1.1",
-    "eslint": "^0.24.0",
+    "eslint": "^0.24.1",
     "eslint-config-duo": "0.0.1",
     "gnode": "^0.1.1",
     "mocha": "^2.2.5",
