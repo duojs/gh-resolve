@@ -1,3 +1,5 @@
+--harmony-generators
 --reporter spec
---timeout 10s
+--slow 1s
+--timeout 5s
 --bail
