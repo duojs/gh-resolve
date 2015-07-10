@@ -1,5 +1,5 @@
 --harmony-generators
---reporter spec
+--require gnode
 --slow 1s
 --timeout 5s
 --bail
