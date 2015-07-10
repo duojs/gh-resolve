@@ -13,105 +13,73 @@ var auth = netrc('api.github.com') || { token: process.env.GH_TOKEN };
  */
 
 describe('resolve()', function(){
-  it('should resolve a semver version to gh ref', function(done){
-    resolve('componentjs/component@0.19.6', auth, function(err, ref){
-      if (err) return done(err);
-      assert.equal(ref.sha, 'a15d8d10c4c60429cda4080ffd16f2d408992a6d');
-      assert.equal(ref.name, '0.19.6');
-      assert.equal(ref.type, 'tag');
-      done();
-    });
+  it('should resolve a semver version to gh ref', function*(){
+    var ref = yield resolve('componentjs/component@0.19.6', auth);
+    assert.equal(ref.sha, 'a15d8d10c4c60429cda4080ffd16f2d408992a6d');
+    assert.equal(ref.name, '0.19.6');
+    assert.equal(ref.type, 'tag');
   });
 
-  it('should sort properly', function(done){
-    resolve('componentjs/component@0.19.x', auth, function(err, ref){
-      if (err) return done(err);
-      assert.equal(ref.name, '0.19.9');
-      done();
-    });
+  it('should sort properly', function*(){
+    var ref = yield resolve('componentjs/component@0.19.x', auth);
+    assert.equal(ref.name, '0.19.9');
   });
 
-  it('should resolve a branch to gh ref', function(done){
-    resolve('componentjs/component@master', auth, function(err, ref){
-      if (err) return done(err);
-      assert.equal(ref.name, 'master');
-      done();
-    });
+  it('should resolve a branch to gh ref', function*(){
+    var ref = yield resolve('componentjs/component@master', auth);
+    assert.equal(ref.name, 'master');
   });
 
-  it('should resolve branches with `/` in them', function(done){
-    resolve('cheeriojs/cheerio@refactor/core', auth, function(err, ref){
-      if (err) return done(err);
-      assert.equal(ref.name, 'refactor/core');
-      done();
-    });
+  it('should resolve branches with `/` in them', function*(){
+    var ref = yield resolve('cheeriojs/cheerio@refactor/core', auth);
+    assert.equal(ref.name, 'refactor/core');
   });
 
-  it('should default to the latest tag when the ref is `*`', function(done){
-    resolve('segmentio/analytics.js@*', auth, function(err, ref){
-      if (err) return done(err);
-      assert(/[\d.]{3}/.test(ref.name));
-      done();
-    });
+  it('should default to the latest tag when the ref is `*`', function*(){
+    var ref = yield resolve('segmentio/analytics.js@*', auth);
+    assert(/[\d.]{3}/.test(ref.name));
   });
 
-  it('should use master when there are no tags and ref is `*`', function(done) {
-    resolve('matthewmueller/throttle@*', auth, function(err, ref){
-      if (err) return done(err);
-      assert.equal(ref.name, 'master');
-      done();
-    });
+  it('should use master when there are no tags and ref is `*`', function*(){
+    var ref = yield resolve('matthewmueller/throttle@*', auth);
+    assert.equal(ref.name, 'master');
   });
 
-  it('should use master when there are no tags', function(done){
-    resolve('mnmly/slider', auth, function(err, ref){
-      if (err) return done(err);
-      assert.equal(ref.name, 'master');
-      done();
-    });
+  it('should use master when there are no tags', function*(){
+    var ref = yield resolve('mnmly/slider', auth);
+    assert.equal(ref.name, 'master');
   });
 
-  it('should provide better errors for invalid repos', function(done) {
-    resolve('sweet/repo@amazing/version', auth, function(err){
-      assert(err);
+  it('should provide better errors for invalid repos', function*(){
+    try {
+      yield resolve('sweet/repo@amazing/version', auth);
+      throw new Error('this should have failed');
+    } catch (err) {
       assert(err.message.indexOf('Not Found') > -1);
-      done();
-    });
+    }
   });
 
-  it('should resolve twbs/bootstrap@* quickly', function(done){
-    resolve('twbs/bootstrap@*', auth, function(err, ref){
-      if (err) return done(err);
-      assert(/[\d.]{3}/.test(ref.name));
-      done();
-    });
+  it('should resolve twbs/bootstrap@* quickly', function*(){
+    var ref = yield resolve('twbs/bootstrap@*', auth);
+    assert(/[\d.]{3}/.test(ref.name));
   });
 
-  it('should resolve renamed repos', function(done) {
-    resolve('segmentio/duo', auth, function(err, ref) {
-      if (err) return done(err);
-      assert(/[\d.]{3}/.test(ref.name));
-      done();
-    });
+  it('should resolve renamed repos', function*() {
+    var ref = yield resolve('segmentio/duo', auth);
+    assert(/[\d.]{3}/.test(ref.name));
   });
 
-  it('should work on weird semvers', function(done){
-    resolve('chjj/marked@*', auth, function(err, ref){
-      if (err) return done(err);
-      assert(/v[.\d]+/.test(ref.name));
-      done();
-    });
+  it('should work on weird semvers', function*(){
+    var ref = yield resolve('chjj/marked@*', auth);
+    assert(/v[.\d]+/.test(ref.name));
   });
 
-  it('should resolve multiple non-semantic semvers', function(done) {
-    resolve('alexei/sprintf.js@*', auth, function(err, ref) {
-      if (err) return done(err);
-      assert(/[\d.]{3}/.test(ref.name));
-      done();
-    });
+  it('should resolve multiple non-semantic semvers', function*() {
+    var ref = yield resolve('alexei/sprintf.js@*', auth);
+    assert(/[\d.]{3}/.test(ref.name));
   });
 
-  it('should work on weird branches', function(done) {
-    resolve('cheeriojs/cheerio@refactor/core', auth, done);
+  it('should work on weird branches', function*() {
+    yield resolve('cheeriojs/cheerio@refactor/core', auth);
   });
 });

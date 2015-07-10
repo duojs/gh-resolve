@@ -12,6 +12,7 @@
     "unyield": "0.0.1"
   },
   "devDependencies": {
+    "co-mocha": "~1.0.3",
     "eslint": "^0.24.0",
     "eslint-config-duo": "0.0.1",
     "gnode": "^0.1.1",
