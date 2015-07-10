@@ -1,6 +1,6 @@
 {
   "name": "gh-resolve",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "repository": "duojs/gh-resolve",
   "main": "lib/resolve.js",
   "dependencies": {

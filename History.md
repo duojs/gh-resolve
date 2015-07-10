@@ -1,4 +1,9 @@
 
+5.0.1 / 2015-07-10
+==================
+
+  * adding preview header to allow redirects in gh api (until july 21)
+
 5.0.0 / 2015-07-10
 ==================
 
