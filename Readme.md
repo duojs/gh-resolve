@@ -1,19 +1,28 @@
 
-## gh-resolve
+# gh-resolve
 
-  Resolves a semver version / branch name to git ref.
+[![npm package](https://img.shields.io/npm/v/gh-resolve.svg)](https://www.npmjs.com/package/gh-resolve)
+[![travis build status](https://img.shields.io/travis/duojs/gh-resolve.svg)](https://travis-ci.org/duojs/gh-resolve)
 
-## Example
+> Resolves a semver version / branch name to git ref.
+
+## resolve(slug, options)
 
 ```js
-resolve('component/component@0.19.6', user, tok, function(err, ref){
-  if (err) return done(err);
-  assert('6d6501d002aef91f1261f6ec98c6ed32046fe46a' == ref.sha);
-  assert('0.19.6' == ref.name);
-  assert('tag' == ref.type);
-  done();
-});
+var ref = yield resolve('component/component@0.19.6', { token: token });
+
+assert('6d6501d002aef91f1261f6ec98c6ed32046fe46a' == ref.sha);
+assert('0.19.6' == ref.name);
+assert('tag' == ref.type);
 ```
+
+This method can be with either `yield` or a `callback`. (thanks to `unyield`)
+
+### Available `options`
+
+ * `token` highly recommended, but not _required_.
+ * `password` alias for `token`
+ * `cache` a cache instance provided by duo
 
 ## License
 
