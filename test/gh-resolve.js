@@ -59,24 +59,6 @@ describe('resolve()', function(){
     assert.equal(ref.name, 'master');
   });
 
-  it('should provide better errors for invalid repos', function*(){
-    try {
-      yield resolve('sweet/repo@amazing/version', auth);
-      throw new Error('should have failed');
-    } catch (err) {
-      assert.equal(err.message, 'unable to resolve');
-    }
-  });
-
-  it('should throw for a missing tag', function*(){
-    try {
-      yield resolve('componentjs/component@0.0.0', auth);
-      throw new Error('should have failed');
-    } catch (err) {
-      assert.equal(err.message, 'unable to resolve');
-    }
-  });
-
   it('should resolve twbs/bootstrap@* quickly', function*(){
     var ref = yield resolve('twbs/bootstrap@*', auth);
     assert(/[\d.]{3}/.test(ref.name));
@@ -99,6 +81,35 @@ describe('resolve()', function(){
 
   it('should work on weird branches', function*() {
     yield resolve('cheeriojs/cheerio@refactor/core', auth);
+  });
+
+  context('errors', function () {
+    it('should throw for non-existant repos', function*(){
+      try {
+        yield resolve('sweet/repo', auth);
+        throw new Error('should have failed');
+      } catch (err) {
+        assert.equal(err.message, 'unable to resolve sweet/repo');
+      }
+    });
+
+    it('should throw for non-existant repos (even w/ a version)', function*(){
+      try {
+        yield resolve('sweet/repo@amazing/version', auth);
+        throw new Error('should have failed');
+      } catch (err) {
+        assert.equal(err.message, 'unable to resolve sweet/repo@amazing/version');
+      }
+    });
+
+    it('should throw for a non-existant tag', function*(){
+      try {
+        yield resolve('componentjs/component@0.0.0', auth);
+        throw new Error('should have failed');
+      } catch (err) {
+        assert.equal(err.message, 'unable to resolve componentjs/component@0.0.0');
+      }
+    });
   });
 
   describe('with cache', function(){
