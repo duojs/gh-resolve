@@ -3,10 +3,19 @@
  * Module Dependencies
  */
 
-var resolve = require('../');
 var assert = require('assert');
+var Cache = require('duo-cache');
 var netrc = require('node-netrc');
+var path = require('path');
+var os = require('os');
+var resolve = require('../');
+
+/**
+ * Local variables.
+ */
+
 var auth = netrc('api.github.com') || { token: process.env.GH_TOKEN };
+var tmp = path.join(os.tmpdir(), 'duo-cache');
 
 /**
  * Tests
@@ -81,5 +90,38 @@ describe('resolve()', function(){
 
   it('should work on weird branches', function*() {
     yield resolve('cheeriojs/cheerio@refactor/core', auth);
+  });
+
+  describe('with cache', function(){
+    var goal;
+    var cache = new Cache(tmp);
+    var options = {
+      cache: cache,
+      token: auth.token || auth.password
+    };
+
+    before(function*(){
+      yield cache.initialize();
+      var start = new Date().getTime();
+      yield resolve('component/each', options);
+      var end = new Date().getTime();
+      goal = end - start;
+    });
+
+    after(function*() {
+      yield cache.clean();
+    });
+
+    it('should still work', function*() {
+      yield resolve('component/each', options);
+    });
+
+    it('should go faster', function*(){
+      var start = new Date().getTime();
+      yield resolve('component/each', options);
+      var end = new Date().getTime();
+      var time = end - start;
+      assert(time <= goal, 'should have been faster than ' + goal + 'ms (actual: ' + time + 'ms)');
+    });
   });
 });
