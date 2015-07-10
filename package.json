@@ -2,19 +2,21 @@
   "name": "gh-resolve",
   "version": "4.0.0",
   "repository": "duojs/gh-resolve",
+  "main": "lib/resolve.js",
   "dependencies": {
+    "co-request": "^0.2.1",
     "conceal": "^1.0.0",
-    "debug": "^1.0.2",
+    "debug": "^2.2.0",
     "duo-parse": "^0.2.0",
-    "enqueue": "0.0.x",
-    "mini-tokenizer": "^0.1.2",
-    "request": "^2.34.0",
-    "semver": "^2.2.1"
+    "semver": "^4.3.6",
+    "unyield": "0.0.1"
   },
   "devDependencies": {
+    "co-mocha": "~1.0.3",
     "eslint": "^0.24.0",
     "eslint-config-duo": "0.0.1",
-    "mocha": "~1.18.2",
+    "gnode": "^0.1.1",
+    "mocha": "^2.2.5",
     "node-netrc": "0.0.1"
   }
 }

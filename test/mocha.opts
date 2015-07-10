@@ -1,3 +1,6 @@
---reporter spec
---timeout 10s
+--harmony-generators
+--require co-mocha
+--require gnode
+--slow 1s
+--timeout 5s
 --bail
