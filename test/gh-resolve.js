@@ -83,6 +83,10 @@ describe('resolve()', function(){
     yield resolve('cheeriojs/cheerio@refactor/core', auth);
   });
 
+  it('should work on repos with lots of tags', function*() {
+    yield resolve('lodash/lodash@^2.4.1', auth);
+  });
+
   context('errors', function () {
     it('should throw for non-existant repos', function*(){
       try {
