@@ -4,7 +4,7 @@
 [![npm package](https://img.shields.io/npm/v/gh-resolve.svg)](https://www.npmjs.com/package/gh-resolve)
 [![travis build status](https://img.shields.io/travis/duojs/gh-resolve.svg)](https://travis-ci.org/duojs/gh-resolve)
 
-> Resolves a semver version / branch name to git ref.
+> Resolves a semver version, branch name or commit hash to git ref.
 
 ## resolve(slug, options)
 
