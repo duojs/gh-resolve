@@ -59,6 +59,13 @@ describe('resolve()', function(){
     assert.equal(ref.name, 'master');
   });
 
+  it('should resolve commit SHAs', function*(){
+    var sha = '8234a9e0c2fea50981b289957fd35dcd59cf39ca';
+    var ref = yield resolve('component/domify@' + sha, auth);
+    assert.equal(ref.type, 'commit');
+    assert.equal(ref.sha, sha);
+  });
+
   it('should resolve twbs/bootstrap@* quickly', function*(){
     var ref = yield resolve('twbs/bootstrap@*', auth);
     assert(/[\d.]{3}/.test(ref.name));
