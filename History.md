@@ -1,4 +1,10 @@
 
+5.2.0 / 2015-07-23
+==================
+
+  * gh-api: removing custom developer accept header
+  * resolve: support resolving commit shas
+
 5.1.1 / 2015-07-11
 ==================
 
