@@ -20,5 +20,7 @@
     "gnode": "^0.1.1",
     "mocha": "^2.2.5",
     "node-netrc": "0.0.1"
-  }
+  },
+  "description": "Resolve a semver version, branch name or commit hash to git ref",
+  "license": "MIT"
 }
