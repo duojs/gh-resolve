@@ -1,4 +1,3 @@
---harmony-generators
 --require co-mocha
 --require gnode
 --slow 1s
